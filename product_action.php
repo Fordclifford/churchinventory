@@ -45,10 +45,10 @@ if(isset($_POST['btn_action']))
 	{
 		$query = "
 		SELECT * FROM asset 
-		INNER JOIN category ON category.category_id = product.category_id 
-		INNER JOIN brand ON brand.brand_id = product.brand_id 
-		INNER JOIN user_details ON user_details.user_id = product.product_enter_by 
-		WHERE product.product_id = '".$_POST["product_id"]."'
+		INNER JOIN category ON category.category_id = asset.category_id 
+		INNER JOIN brand ON brand.brand_id = asset.brand_id 
+		INNER JOIN user_details ON user_details.user_id = asset.product_enter_by 
+		WHERE asset.product_id = '".$_POST["product_id"]."'
 		";
 		$statement = $connect->prepare($query);
 		$statement->execute();
@@ -60,13 +60,13 @@ if(isset($_POST['btn_action']))
 		foreach($result as $row)
 		{
 			$status = '';
-			if($row['product_status'] == 'active')
+			if($row['product_status'] == 'good')
 			{
-				$status = '<span class="label label-success">Active</span>';
+				$status = '<span class="label label-success">Good</span>';
 			}
 			else
 			{
-				$status = '<span class="label label-danger">Inactive</span>';
+				$status = '<span class="label label-danger">Faulty</span>';
 			}
 			$output .= '
 			<tr>
