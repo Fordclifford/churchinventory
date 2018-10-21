@@ -4,25 +4,31 @@
 
 include('database_connection.php');
 include('function.php');
-
 $query = '';
 
 $output = array();
-$query .= "
-	SELECT * FROM product 
-INNER JOIN brand ON brand.brand_id = product.brand_id
-INNER JOIN category ON category.category_id = product.category_id 
-INNER JOIN user_details ON user_details.user_id = product.product_enter_by 
-";
 
+if(isset($_POST['category_id'])){
+     $query .= 'SELECT * FROM asset 
+INNER JOIN brand ON brand.brand_id = asset.brand_id
+INNER JOIN category ON category.category_id = asset.category_id 
+INNER JOIN user_details ON user_details.user_id = asset.product_enter_by WHERE asset.category_id ="'.$_GET['category_id'].'" ';
+ }  else {
+     $query .= "
+	SELECT * FROM asset 
+INNER JOIN brand ON brand.brand_id = asset.brand_id
+INNER JOIN category ON category.category_id = asset.category_id 
+INNER JOIN user_details ON user_details.user_id = asset.product_enter_by 
+";
+}
 if(isset($_POST["search"]["value"]))
 {
 	$query .= 'WHERE brand.brand_name LIKE "%'.$_POST["search"]["value"].'%" ';
 	$query .= 'OR category.category_name LIKE "%'.$_POST["search"]["value"].'%" ';
-	$query .= 'OR product.product_name LIKE "%'.$_POST["search"]["value"].'%" ';
-	$query .= 'OR product.product_quantity LIKE "%'.$_POST["search"]["value"].'%" ';
+	$query .= 'OR asset.product_name LIKE "%'.$_POST["search"]["value"].'%" ';
+	$query .= 'OR asset.product_quantity LIKE "%'.$_POST["search"]["value"].'%" ';
 	$query .= 'OR user_details.user_name LIKE "%'.$_POST["search"]["value"].'%" ';
-	$query .= 'OR product.product_id LIKE "%'.$_POST["search"]["value"].'%" ';
+	$query .= 'OR asset.product_id LIKE "%'.$_POST["search"]["value"].'%" ';
 }
 
 if(isset($_POST['order']))
@@ -46,13 +52,13 @@ $filtered_rows = $statement->rowCount();
 foreach($result as $row)
 {
 	$status = '';
-	if($row['product_status'] == 'active')
+	if($row['product_status'] == 'good')
 	{
-		$status = '<span class="label label-success">Active</span>';
+		$status = '<span class="label label-success">Good</span>';
 	}
 	else
 	{
-		$status = '<span class="label label-danger">Inactive</span>';
+		$status = '<span class="label label-danger">Faulty</span>';
 	}
 	$sub_array = array();
 	$sub_array[] = $row['product_id'];
@@ -70,7 +76,7 @@ foreach($result as $row)
 
 function get_total_all_records($connect)
 {
-	$statement = $connect->prepare('SELECT * FROM product');
+	$statement = $connect->prepare('SELECT * FROM asset');
 	$statement->execute();
 	return $statement->rowCount();
 }

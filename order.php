@@ -5,10 +5,7 @@ include('database_connection.php');
 
 include('function.php');
 
-if(!isset($_SESSION['type']))
-{
-	header('location:login.php');
-}
+
 
 include('header.php');
 

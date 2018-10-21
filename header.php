@@ -15,7 +15,7 @@
 	<body>
 		<br />
 		<div class="container">
-                    <h2 align="center"><img src="" Inventory Management System</h2>
+                    <h2 align="center"> Inventory Management System</h2>
 
 			<nav class="navbar navbar-inverse">
 				<div class="container-fluid">
@@ -27,14 +27,16 @@
 					if($_SESSION['type'] == 'master')
 					{
 					?>
-						<li><a href="user.php">User</a></li>
-						<li><a href="category.php">Category</a></li>
-						<li><a href="brand.php">Brand</a></li>
-						<li><a href="product.php">Product</a></li>
+						<li><a href="user.php">Users</a></li>
+                                                <li><a href="church.php">Churches</a></li>
+						
+						
 					<?php
 					}
 					?>
-						<li><a href="order.php">Order</a></li>
+						<li><a href="category.php">Category</a></li>
+                                                <li><a href="asset.php">Assets</a></li>
+                                                <li><a href="brand.php">Brand</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li class="dropdown">
