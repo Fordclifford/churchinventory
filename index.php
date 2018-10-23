@@ -38,7 +38,7 @@ include('header.php');
 			<div class="panel-body" align="center">
 				<h1><?php echo count_total_churches($connect); ?></h1>
 			</div>
-                        <a href="churches.php">
+                        <a href="church.php">
                           <div class="panel-footer">
                                 <span class="pull-left">Go to &nbsp;</span>
                                 <span class="pull-right"><i class="glyphicon glyphicon-circle-arrow-right"></i></span>

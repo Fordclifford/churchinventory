@@ -42,6 +42,7 @@ if (isset($_POST["login"])) {
                     $result = $statement->fetchAll();
                       foreach ($result as $row) {
                           $_SESSION['church'] = $row['id'];
+                          $_SESSION['church_name'] = $row['name'];
                          }
 
                     

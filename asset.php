@@ -24,7 +24,10 @@ include('header.php');
                     <div class="col-lg-2 col-md-2 col-sm-4 col-xs-6" align='right'>
                         <button type="button" name="add" id="add_button" class="btn btn-success btn-xs">Add</button>
                     </div>
-                </div>
+                     <div class="col-lg-2 col-md-2 col-sm-4 col-xs-6" align='right'>
+                         <a href="view_assets.php" name="pdf" class="btn btn-info btn-xs">View PDF</a>
+                    </div>
+                  </div>
             </div>
             <div class="panel-body">
                 <div class="row"><div class="col-sm-12 table-responsive">
