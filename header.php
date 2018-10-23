@@ -15,7 +15,8 @@
 	<body>
 		<br />
 		<div class="container">
-                    <h2 align="center"> Inventory Management System</h2>
+                    <a class="navbar-brand" href="http://localhost/churchinventory/index.php" style="padding: 1px;margin:auto"> <img src="images/logo.jpg" style="height:100%;width: auto;" title="mycompanylogo"></a>
+                    <h2 align="center"> Christ Formation Chapel Inventory Management System</h2>
 
 			<nav class="navbar navbar-inverse">
 				<div class="container-fluid">
