@@ -8,19 +8,15 @@ $query = '';
 
 $output = array();
 
-if(isset($_POST['category_id'])){
-     $query .= 'SELECT * FROM asset 
-INNER JOIN brand ON brand.brand_id = asset.brand_id
-INNER JOIN category ON category.category_id = asset.category_id 
-INNER JOIN user_details ON user_details.user_id = asset.product_enter_by WHERE asset.category_id ="'.$_GET['category_id'].'" ';
- }  else {
+
      $query .= "
 	SELECT * FROM asset 
 INNER JOIN brand ON brand.brand_id = asset.brand_id
+INNER JOIN church ON church.id = asset.church_id
 INNER JOIN category ON category.category_id = asset.category_id 
 INNER JOIN user_details ON user_details.user_id = asset.product_enter_by 
 ";
-}
+
 if(isset($_POST["search"]["value"]))
 {
 	$query .= 'WHERE brand.brand_name LIKE "%'.$_POST["search"]["value"].'%" ';
@@ -29,6 +25,7 @@ if(isset($_POST["search"]["value"]))
 	$query .= 'OR asset.product_quantity LIKE "%'.$_POST["search"]["value"].'%" ';
 	$query .= 'OR user_details.user_name LIKE "%'.$_POST["search"]["value"].'%" ';
 	$query .= 'OR asset.product_id LIKE "%'.$_POST["search"]["value"].'%" ';
+        $query .= 'OR church.name LIKE "%'.$_POST["search"]["value"].'%" ';
 }
 
 if(isset($_POST['order']))
@@ -67,8 +64,13 @@ foreach($result as $row)
 	$sub_array[] = $row['product_name'];
 	$sub_array[] = available_product_quantity($connect, $row["product_id"]) . ' ' . $row["product_unit"];
 	$sub_array[] = $row['user_name'];
-	$sub_array[] = $status;
-	$sub_array[] = '<button type="button" name="view" id="'.$row["product_id"].'" class="btn btn-info btn-xs view">View</button>';
+          if ($_SESSION['type']=="master"){
+        $sub_array[] = $row['name'];
+          }
+	$sub_array[] = $status;       
+        $sub_array[] = '<button type="button" name="add_asset" id="'.$row["product_id"].'" class="btn btn-success btn-xs add_asset">Add</button>';
+	$sub_array[] = '<button type="button" name="remove_asset" id="'.$row["product_id"].'" class="btn btn-danger btn-xs remove_asset">Remove</button>';
+        $sub_array[] = '<button type="button" name="view" id="'.$row["product_id"].'" class="btn btn-info btn-xs view">View</button>';
 	$sub_array[] = '<button type="button" name="update" id="'.$row["product_id"].'" class="btn btn-warning btn-xs update">Update</button>';
 	$sub_array[] = '<button type="button" name="delete" id="'.$row["product_id"].'" class="btn btn-danger btn-xs delete" data-status="'.$row["product_status"].'">Delete</button>';
 	$data[] = $sub_array;
@@ -77,7 +79,15 @@ foreach($result as $row)
 function get_total_all_records($connect)
 {
 	$statement = $connect->prepare('SELECT * FROM asset');
-	$statement->execute();
+        $statement->execute();
+        if ($_SESSION['type']=="user"){
+        $statement = $connect->prepare('SELECT * FROM asset WHERE church_id=:church_id');
+        $statement->execute( array(
+                    ':church_id' => $_SESSION["church"]
+            )
+        );
+        }
+	
 	return $statement->rowCount();
 }
 

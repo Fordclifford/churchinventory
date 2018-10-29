@@ -13,7 +13,7 @@ if (isset($_POST['btn_action'])) {
     }
 
     if ($_POST['btn_action'] == 'Add') {
-
+if ($_SESSION['type']=="user"){
         $query1 = "
 		SELECT * FROM asset WHERE product_name = :product_name AND brand_id = :brand_id AND category_id=:category_id AND church_id=:church_id
 		";
@@ -75,9 +75,76 @@ if (isset($_POST['btn_action'])) {
         );
         $result = $statement->fetchAll();
         if (isset($result)) {
-            echo 'Asset Added.'.$statement1->rowCount();
+            echo 'Asset Added.';
         }
     }}
+    if ($_SESSION['type']=="master"){
+      $query1 = "
+		SELECT * FROM asset WHERE product_name = :product_name AND brand_id = :brand_id AND category_id=:category_id AND church_id=:church_id
+		";
+        $statement1 = $connect->prepare($query1);
+        $statement1->execute(
+                array(
+                    ':product_name' => $_POST["product_name"],
+                    ':brand_id' => $_POST["brand_id"],
+                    ':category_id' => $_POST["category_id"],
+                     ':church_id' => $_POST["church_id"]
+                )
+        );
+
+
+        if ($statement1->rowCount() > 0) {
+            $result1 = $statement1->fetchAll();
+            foreach ($result1 as $row) {
+              $quantity= ($_POST['product_quantity']+$row['product_quantity']);
+              $id = $row['product_id'];
+              
+            }
+            $query = "
+		UPDATE asset 
+		set product_quantity = :product_quantity 
+		WHERE product_id = :product_id AND church_id=:church_id
+		";
+            $statement = $connect->prepare($query);
+            $statement->execute(
+                    array(
+                        ':product_quantity' => $quantity,
+                        ':product_id' => $id,
+                    ':church_id' => $_POST["church_id"]
+                    )
+            );
+            $result = $statement->fetchAll();
+            if (isset($result)) {
+                echo 'Asset Quantity Updated';
+            }
+            
+        }else{
+        $query = "
+		INSERT INTO asset (category_id, brand_id, product_name, product_description, product_quantity, product_unit, product_enter_by, product_status, product_date,church_id) 
+		VALUES (:category_id, :brand_id, :product_name, :product_description, :product_quantity, :product_unit, :product_enter_by, :product_status, :product_date, :church_id)
+		";
+        $statement = $connect->prepare($query);
+        $statement->execute(
+                array(
+                    ':category_id' => $_POST['category_id'],
+                    ':brand_id' => $_POST['brand_id'],
+                    ':product_name' => $_POST['product_name'],
+                    ':product_description' => $_POST['product_description'],
+                    ':product_quantity' => $_POST['product_quantity'],
+                    ':product_unit' => $_POST['product_unit'],
+                    ':product_enter_by' => $_SESSION["user_id"],
+                    ':product_status' => 'good',
+                    ':church_id' => $_SESSION["church"],
+                    ':product_date' => date("Y-m-d")
+                )
+        );
+        $result = $statement->fetchAll();
+        if (isset($result)) {
+            echo 'Asset Added.';
+        }
+    }}  
+    }
+    
     if ($_POST['btn_action'] == 'product_details') {
         $query = "
 		SELECT * FROM asset 
@@ -188,10 +255,85 @@ if (isset($_POST['btn_action'])) {
             echo 'Asset Details Updated';
         }
     }
+    
+    if ($_POST['btn_action'] == 'Add Asset') {
+         
+           $query9 = "
+		SELECT * FROM asset WHERE product_id=:product_id
+		";
+        $statement3 = $connect->prepare($query9);
+        $statement3->execute(
+                array(
+                    ':product_id' => $_POST["asset_id"]
+                )
+        );
+
+        if ($statement3->rowCount() > 0) {
+            $result3 = $statement3->fetchAll();
+            foreach ($result3 as $row) {
+                $quantity= $_POST['product_quantity']+$row['product_quantity'];
+              }
+         
+        $query = "
+		UPDATE asset 
+		set product_quantity = :product_quantity 
+		WHERE product_id = :product_id
+		";
+        $statement = $connect->prepare($query);
+        $statement->execute(
+                array(
+                   ':product_quantity' =>  $quantity,
+                    ':product_id' => $_POST['asset_id']
+                )
+        );
+        $result = $statement->fetchAll();
+        if (isset($result)) {
+            echo $_POST['product_quantity'] . " " . $row['product_name']. 's Added';
+        }
+    }
+     }
+     
+    if ($_POST['btn_action'] == 'Remove Asset') {
+         
+           $query9 = "
+		SELECT * FROM asset WHERE product_id=:product_id
+		";
+        $statement3 = $connect->prepare($query9);
+        $statement3->execute(
+                array(
+                    ':product_id' => $_POST["asset_id"]
+                )
+        );
+
+        if ($statement3->rowCount() > 0) {
+            $result3 = $statement3->fetchAll();
+            foreach ($result3 as $row) {
+                $quantity= $row['product_quantity']-$_POST['product_quantity'];
+              }
+         
+        $query = "
+		UPDATE asset 
+		set product_quantity = :product_quantity 
+		WHERE product_id = :product_id
+		";
+        $statement = $connect->prepare($query);
+        $statement->execute(
+                array(
+                   ':product_quantity' =>  $quantity,
+                    ':product_id' => $_POST['asset_id']
+                )
+        );
+        $result = $statement->fetchAll();
+        if (isset($result)) {
+            echo $_POST['product_quantity'] . " " . $row['product_name']. 's Removed';
+        }
+    }
+     }
+    
     if ($_POST['btn_action'] == 'delete') {
-        $status = 'active';
-        if ($_POST['status'] == 'active') {
-            $status = 'inactive';
+        $status = 'good';
+        if ($_POST['status'] == 'good') {
+            $status = 'faulty';
         }
         $query = "
 		UPDATE asset 

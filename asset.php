@@ -7,7 +7,7 @@ include('function.php');
 if (!isset($_SESSION["type"])) {
     header('location:login.php');
 }
-
+include './config.php';
 
 include('header.php');
 ?>
@@ -22,7 +22,7 @@ include('header.php');
                     </div>
 
                     <div class="col-lg-2 col-md-2 col-sm-4 col-xs-6" align='right'>
-                        <button type="button" name="add" id="add_button" class="btn btn-success btn-xs">Add</button>
+                        <button type="button" name="add" id="add_button" class="btn btn-success btn-xs">New</button>
                     </div>
                      <div class="col-lg-2 col-md-2 col-sm-4 col-xs-6" align='right'>
                          <a href="view_assets.php" name="pdf" class="btn btn-info btn-xs">View PDF</a>
@@ -39,7 +39,12 @@ include('header.php');
                                     <th>Name</th>
                                     <th>Quantity</th>
                                     <th>Enter By</th>
+                                    <?php  if ($_SESSION['type']=="master"){ ?>
+                                    <th>Church</th>
+                                    <?php }?>
                                     <th>Status</th>
+                                    <th></th>
+                                    <th></th>
                                     <th></th>
                                     <th></th>
                                     <th></th>
@@ -57,7 +62,7 @@ include('header.php');
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"><i class="fa fa-plus"></i> Add Asset</h4>
+                    <h4 class="modal-title"><i class="fa fa-plus"></i> New Asset</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
@@ -73,6 +78,27 @@ include('header.php');
                             <option value="">Select Brand</option>
                         </select>
                     </div>
+                    
+                    <?php  if ($_SESSION['type']=="master"){ ?>
+                                   <div class="form-group">
+                            <label>Select Church</label>
+                            <select title=" Choose Church"  style=" height: 40px" class="form-control w3-round-large" name="church_id" id="church_id"
+                                    value="<?php echo $yr; ?>">
+                                <option value=''>------- Select Church --------</option>
+                                <?php
+                                $sql = "SELECT * FROM church";
+                                $resu = mysql_query($sql);
+                                if (mysql_num_rows($resu) > 0) {
+                                    while ($row = mysql_fetch_object($resu)) {
+                                        echo "<option value='" . $row->id . "'>" . $row->name . "</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+
+                        </div>
+                                    <?php }?>
+                                    
                     <div class="form-group">
                         <label>Enter Asset Name</label>
                         <input type="text" name="product_name" id="product_name" class="form-control" required />
@@ -118,6 +144,56 @@ include('header.php');
         </form>
     </div>
 </div>
+
+
+<div id="addassetModal" class="modal fade">
+    <div class="modal-dialog">
+        <form method="post" id="asset_form">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><i class="fa fa-plus"></i> Add Asset</h4>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="form-group">
+                        <label>Enter Quantity</label>
+                        <div class="input-group">
+                            <input type="text" name="product_quantity" id="prod_quantity" class="form-control" required pattern="[+-]?([0-9]*[.])?[0-9]+" /> 
+                            <span class="input-group-addon">
+                                <select name="product_unit" id="prod_unit" required>
+                                    <option value="">Select Unit</option>
+                                    <option value="Bags">Bags</option>
+                                    <option value="Bottles">Bottles</option>
+                                    <option value="Box">Box</option>
+                                    <option value="Dozens">Dozens</option>
+                                    <option value="Feet">Feet</option>
+                                    <option value="Gallon">Gallon</option>
+                                    <option value="Grams">Grams</option>
+                                    <option value="Inch">Inch</option>
+                                    <option value="Kg">Kg</option>
+                                    <option value="Liters">Liters</option>
+                                    <option value="Meter">Meter</option>
+                                    <option value="Pcs">Pcs</option>
+                                    <option value="Packet">Packet</option>
+                                    <option value="Rolls">Rolls</option>
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                  
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="asset_id" id="asset_id" />
+                    <input type="hidden" name="btn_action" id="asset_action" />
+                    <input type="submit" name="action" id="submit_action" class="btn btn-info" value="Add" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 
 <div id="productdetailsModal" class="modal fade">
     <div class="modal-dialog">
@@ -165,10 +241,11 @@ include('header.php');
         $('#add_button').click(function () {
             $('#productModal').modal('show');
             $('#product_form')[0].reset();
-            $('.modal-title').html("<i class='fa fa-plus'></i> Add Product");
+            $('.modal-title').html("<i class='fa fa-plus'></i> Add Items");
             $('#action').val("Add");
             $('#btn_action').val("Add");
         });
+             
 
         $('#category_id').change(function () {
             var category_id = $('#category_id').val();
@@ -202,6 +279,26 @@ include('header.php');
                 }
             })
         });
+        
+        
+        $(document).on('submit', '#asset_form', function (event) {
+            event.preventDefault();
+            $('#submit_action').attr('disabled', 'disabled');
+            var form_data = $(this).serialize();
+            $.ajax({
+                url: "product_action.php",
+                method: "POST",
+                data: form_data,
+                success: function (data)
+                {
+                    $('#asset_form')[0].reset();
+                    $('#addassetModal').modal('hide');
+                    $('#alert_action').fadeIn().html('<div class="alert alert-success">' + data + '</div>');
+                    $('#submit_action').attr('disabled', false);
+                    productdataTable.ajax.reload();
+                }
+            })
+        });
 
         $(document).on('click', '.view', function () {
             var product_id = $(this).attr("id");
@@ -216,7 +313,7 @@ include('header.php');
                 }
             })
         });
-
+        
         $(document).on('click', '.update', function () {
             var product_id = $(this).attr("id");
             var btn_action = 'fetch_single';
@@ -243,6 +340,47 @@ include('header.php');
                 }
             })
         });
+          
+$(document).on('click', '.add_asset', function () {
+            var asset_id = $(this).attr("id");
+            var btn_action = 'fetch_single';
+            $.ajax({
+                url: "product_action.php",
+                method: "POST",
+                data: {product_id: asset_id, btn_action: btn_action},
+                dataType: "json",
+                success: function (data) {
+                    $('#addassetModal').modal('show');
+                    $('.modal-title').html("<i class='fa fa-pencil-square-o'></i> Add Items");
+                    $('#asset_id').val(asset_id);
+                    $('#submit_action').val("Add Asset");
+                    $('#asset_action').val("Add Asset");
+                    $('#prod_unit').val(data.product_unit);
+                    $('#prod_quantity').val(data.product_quantity);
+                }
+            })
+        });
+        
+        $(document).on('click', '.remove_asset', function () {
+            var asset_id = $(this).attr("id");
+            var btn_action = 'fetch_single';
+            $.ajax({
+                url: "product_action.php",
+                method: "POST",
+                data: {product_id: asset_id, btn_action: btn_action},
+                dataType: "json",
+                success: function (data) {
+                    $('#addassetModal').modal('show');
+                    $('.modal-title').html("<i class='fa fa-pencil-square-o'></i> Remove Items");
+                    $('#asset_id').val(asset_id);
+                    $('#submit_action').val("Remove Asset");
+                    $('#asset_action').val("Remove Asset");
+                    $('#prod_unit').val(data.product_unit);
+                    $('#prod_quantity').val(data.product_quantity);
+                }
+            })
+        });
+
 
         $(document).on('click', '.delete', function () {
             var product_id = $(this).attr("id");
